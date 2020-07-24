@@ -1,0 +1,19 @@
+version: '3'
+services:
+  php:
+    container_name: "php"
+    build:
+        context: .
+        dockerfile: Dockerfile
+    ports:
+        - "80:80"
+    volumes:
+        - .:/var/www/html
+  node:
+    container_name: "node"
+    image: node:8.16.0-alpine
+    volumes:
+        - .:/var/www/html
+    tty: true
+    ports:
+        - "3000:3000"
