@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>仮登録</title>
+    <title>ユーザー認証</title>
   </head>
   <body>
     <div id="signup">
-      <h1>仮登録(初期のユーザー、パスワード登録)</h1>
+      <h1>コード登録→本登録</h1>
       <div id="message">
           <div id="message-span" style="color: red;"></div>
           <div id="success-message-span" style="color: blue;"></div>
@@ -15,10 +15,10 @@
         <span style="display: inline-block; width: 150px;">UserID(Email)</span>
         <input type="text" id="email" placeholder="Email Address" />
         <br />
-        <span style="display: inline-block; width: 150px;">Password</span>
-        <input type="password" id="password" placeholder="Password" />
+        <span style="display: inline-block; width: 150px;">Verification code</span>
+        <input type="text" id="verificationCode" placeholder="123456" />
         <br /><br />
-        <input type="button" id="createAccount" value="Create Account" />
+        <input type="button" id="verification" value="Verification" />
       </form>
     </div>
     <br />

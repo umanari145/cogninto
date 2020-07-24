@@ -1,5 +1,3 @@
-
-
 import {
     AuthenticationDetails,
     CognitoUserAttribute,
@@ -11,7 +9,6 @@ import AWS from 'aws-sdk';
 import $ from 'jquery';
 
 import * as aws from './aws_config.js'
-
 
 const poolData = {
     UserPoolId: aws.USER_POOL_ID,
@@ -27,7 +24,7 @@ AWS.config.credentials = new AWS.CognitoIdentityCredentials({
     IdentityPoolId: aws.IDENTITY_POOL_ID
 });
 
-$("#createAccount").on("click", () => {
+$("#createAccount").on("click", (event) => {
 
     $("#message-span").html("")
     $("#success-message-span").html("")
@@ -46,7 +43,7 @@ $("#createAccount").on("click", () => {
 
     // 何か1つでも未入力の項目がある場合、処理終了
     if (!username || !password) {
-        $("#message-span").html("メールアドレスかパスワードが未入力です。");
+        $("#message-span").html("未入力項目が存在します。");
         return;
     }
 
@@ -57,7 +54,91 @@ $("#createAccount").on("click", () => {
         } else {
           // サインアップ成功の場合、アクティベーション画面に遷移する
         　 $("#success-message-span").html("メール送信をしました。確認してください。")
-          location.href = "signin.html";
+          location.href = "verification.html";
         }
     });
 });
+
+
+$("#verification").on("click", (event) => {
+
+    $("#message-span").html("")
+    $("#success-message-span").html("")
+
+    var email = $("#email").val() || "";
+    var verificationCode = $("#verificationCode").val() || "";
+    
+    if (!email || !verificationCode) {
+        $("#message-span").html("未入力項目が存在します。");
+        return;
+    } 
+	
+    var userData = {
+        Username : email,
+        Pool : userPool
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+    
+    // アクティベーション処理
+    cognitoUser.confirmRegistration(verificationCode, true, function(err, result){
+        if (err) {
+            // アクティベーション失敗の場合、エラーメッセージを画面に表示
+             $("#message-span").html(err.message)
+            return;
+        } else {
+            // アクティベーション成功の場合、サインイン画面に遷移
+            $("#success-message-span").html("ユーザーアカウントが認証されました。")
+            location.href = "signin.html";
+        }
+    });
+})
+
+$("#signin").on("click", (event) => {
+
+    $("#message-span").html("")
+    $("#success-message-span").html("")
+
+    var email = $('#email').val()|| "";
+    var password = $('#password').val() || "";
+    
+    if (!email || !password) { 
+        $("#message-span").html("未入力項目が存在します。");
+    	return ; 
+    }
+    
+    // 認証データの作成
+    var authenticationData = {
+        Username: email,
+        Password: password
+    };
+    var authenticationDetails = new AuthenticationDetails(authenticationData);
+    
+    var userData = {
+        Username: email,
+        Pool: userPool
+    };
+    var cognitoUser = new CognitoUser(userData);
+    
+    // 認証処理
+    cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: function (result) {
+            
+            $("#success-message-span").html("有効なアカウントです。")
+            //tokenが無事取れていることを確認
+            var idToken = result.getIdToken().getJwtToken();          // IDトークン
+            var accessToken = result.getAccessToken().getJwtToken();  // アクセストークン
+            var refreshToken = result.getRefreshToken().getToken();   // 更新トークン
+            
+            console.log("idToken : " + idToken);
+            console.log("accessToken : " + accessToken);
+            console.log("refreshToken : " + refreshToken);
+           
+        },
+ 
+        onFailure: function(err) {
+            // サインイン失敗の場合、エラーメッセージを画面に表示
+            $("#message-span").html(err.message);
+        }
+    });    
+})
